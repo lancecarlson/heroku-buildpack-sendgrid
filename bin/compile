@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -e            # fail fast
+set -o pipefail   # don't ignore exit codes when piping output
+set -x          # enable debugging
+
+build_dir=$1
+cache_dir=$2
+env_dir=$3
+
+bp_dir=$(cd $(dirname $0); cd ..; pwd)
+
+# Load some convenience functions like status(), echo(), and indent()
+source $bp_dir/bin/common.sh
+
+mkdir -p $build_dir/vendor/sendgrid/bin
+
+# Download sendgrid
+status "Downloading and sendgrid"
+sendgrid_url="https://github.com/lancecarlson/sendgrid/releases/download/v0.1/sendgrid_linux_amd64"
+curl -o $build_dir/sendgrid -L $sendgrid_url
+
+chmod +x $build_dir/sendgrid
+mv $build_dir/sendgrid $build_dir/vendor/sendgrid/bin/sendgrid
+
+mkdir -p $build_dir/.profile.d
+echo 'PATH=$PATH:$HOME/vendor/sendgrid/bin' > $build_dir/.profile.d/sendgrid.sh
